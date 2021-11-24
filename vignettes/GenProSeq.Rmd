@@ -52,55 +52,65 @@ The sequences of the PTEN are used to train the GAN. The input sequences must be
 It is expected that the model can rapidly generate highly diverse novel functional proteins within the allowed biological constraints of the sequence space. Note that the same dataset is used for training and validation here.
 
 ```{r, eval=TRUE}
-library(GenProSeq)
-
-# model parameters
-length_seq <- 403
-embedding_dim <- 8
-latent_dim <- 4
-epochs <- 20
-batch_size <- 64
-
-# GAN
-GAN_result <- fit_GAN(prot_seq = example_PTEN,
-                    length_seq = length_seq,
-                    embedding_dim = embedding_dim,
-                    latent_dim = latent_dim,
-                    intermediate_generator_layers = list(
-                        layer_dense(units = 16),
-                        layer_dense(units = 128)),
-                    intermediate_discriminator_layers = list(
-                        layer_dense(units = 128, activation = "relu"),
-                        layer_dense(units = 16, activation = "relu")),
-                    prot_seq_val = example_PTEN,
-                    epochs = epochs,
-                    batch_size = batch_size)
+if (keras::is_keras_available() & reticulate::py_available()) {
+    library(GenProSeq)
+    
+    # model parameters
+    length_seq <- 403
+    embedding_dim <- 8
+    latent_dim <- 4
+    epochs <- 20
+    batch_size <- 64
+    
+    # GAN
+    GAN_result <- fit_GAN(prot_seq = example_PTEN,
+                        length_seq = length_seq,
+                        embedding_dim = embedding_dim,
+                        latent_dim = latent_dim,
+                        intermediate_generator_layers = list(
+                            layer_dense(units = 16),
+                            layer_dense(units = 128)),
+                        intermediate_discriminator_layers = list(
+                            layer_dense(units = 128, activation = "relu"),
+                            layer_dense(units = 16, activation = "relu")),
+                        prot_seq_val = example_PTEN,
+                        epochs = epochs,
+                        batch_size = batch_size)
+}
 ```
 
 The model architecture of the generator is shown below.
 
 ```{r, eval=TRUE}
-ttgsea::plot_model(GAN_result$generator)
+if (keras::is_keras_available() & reticulate::py_available()) {
+    ttgsea::plot_model(GAN_result$generator)
+}
 ```
 
 The model architecture of the discriminator is shown below.
 
 ```{r, eval=TRUE}
-ttgsea::plot_model(GAN_result$discriminator)
+if (keras::is_keras_available() & reticulate::py_available()) {
+    ttgsea::plot_model(GAN_result$discriminator)
+}
 ```
 
 In a graphical manner, a sequence logo shows the probability of occurrence for each symbol at specific positions. Thus, the height of a symbol indicates the relative frequency of the symbol at that position. The sequence logo of the first 20 amino acids of the generated protein sequences is shown below.
 
 ```{r, eval=TRUE}
-set.seed(1)
-gen_prot_GAN <- gen_GAN(GAN_result, num_seq = 100)
-ggseqlogo::ggseqlogo(substr(gen_prot_GAN$gen_seq, 1, 20))
+if (keras::is_keras_available() & reticulate::py_available()) {
+    set.seed(1)
+    gen_prot_GAN <- gen_GAN(GAN_result, num_seq = 100)
+    ggseqlogo::ggseqlogo(substr(gen_prot_GAN$gen_seq, 1, 20))
+}
 ```
 
 The sequence logo of the first 20 amino acids of the real protein sequences is shown below. Here, it is assumed that the conserved position is the first amino acid. The sequence logo is a visualization approach to graphically represent the sequence conservation.
 
 ```{r, eval=TRUE}
-ggseqlogo::ggseqlogo(substr(example_PTEN, 1, 20))
+if (keras::is_keras_available() & reticulate::py_available()) {
+    ggseqlogo::ggseqlogo(substr(example_PTEN, 1, 20))
+}
 ```
 
 
@@ -115,62 +125,72 @@ ggseqlogo::ggseqlogo(substr(example_PTEN, 1, 20))
 Consider the aligned sequences of the luxA for traing the CVAE with labels. Suppose that the label is the third amino acid of each sequence. Thus there are two class labels. Using the function "fit_VAE", we build an encoder model that takes a protein sequence and projects it on the latent space and a decoder model that goes from the latent space back to the amino acid representation. And then, the function "gen_VAE" generates sequences with the desired labels. Note that the same dataset is used for training and validation.
 
 ```{r, eval=TRUE}
-library(GenProSeq)
-label <- substr(example_luxA, 3, 3)
-
-# model parameters
-length_seq <- 360
-embedding_dim <- 8
-batch_size <- 128
-epochs <- 20
-
-# CVAE
-VAE_result <- fit_VAE(prot_seq = example_luxA,
-                    label = label,
-                    length_seq = length_seq,
-                    embedding_dim = embedding_dim,
-                    embedding_args = list(iter = 20),
-                    intermediate_encoder_layers = list(layer_dense(units = 128),
-                                                        layer_dense(units = 16)),
-                    intermediate_decoder_layers = list(layer_dense(units = 16),
-                                                        layer_dense(units = 128)),
-                    prot_seq_val = example_luxA,
-                    label_val = label,
-                    epochs = epochs,
-                    batch_size = batch_size,
-                    use_generator = FALSE,
-                    optimizer = keras::optimizer_adam(clipnorm = 0.1),
-                    callbacks = keras::callback_early_stopping(
-                        monitor = "val_loss",
-                        patience = 10,
-                        restore_best_weights = TRUE))
+if (keras::is_keras_available() & reticulate::py_available()) {
+    library(GenProSeq)
+    label <- substr(example_luxA, 3, 3)
+    
+    # model parameters
+    length_seq <- 360
+    embedding_dim <- 8
+    batch_size <- 128
+    epochs <- 20
+    
+    # CVAE
+    VAE_result <- fit_VAE(prot_seq = example_luxA,
+                        label = label,
+                        length_seq = length_seq,
+                        embedding_dim = embedding_dim,
+                        embedding_args = list(iter = 20),
+                        intermediate_encoder_layers = list(layer_dense(units = 128),
+                                                            layer_dense(units = 16)),
+                        intermediate_decoder_layers = list(layer_dense(units = 16),
+                                                            layer_dense(units = 128)),
+                        prot_seq_val = example_luxA,
+                        label_val = label,
+                        epochs = epochs,
+                        batch_size = batch_size,
+                        use_generator = FALSE,
+                        optimizer = keras::optimizer_adam(clipnorm = 0.1),
+                        callbacks = keras::callback_early_stopping(
+                            monitor = "val_loss",
+                            patience = 10,
+                            restore_best_weights = TRUE))
+}
 ```
 
 The plot for model architecture of the CVAE is drawn below.
 
 ```{r, eval=TRUE}
-VAExprs::plot_vae(VAE_result$model)
+if (keras::is_keras_available() & reticulate::py_available()) {
+    VAExprs::plot_vae(VAE_result$model)
+}
 ```
 
 The sequence logo of the first 20 amino acids of the generated protein sequences with the label "I" is shown below.
 
 ```{r, eval=TRUE}
-set.seed(1)
-gen_prot_VAE <- gen_VAE(VAE_result, label = rep("I", 100), num_seq = 100)
-ggseqlogo::ggseqlogo(substr(gen_prot_VAE$gen_seq, 1, 20))
+if (keras::is_keras_available() & reticulate::py_available()) {
+    set.seed(1)
+    gen_prot_VAE <- gen_VAE(VAE_result, label = rep("I", 100), num_seq = 100)
+    ggseqlogo::ggseqlogo(substr(gen_prot_VAE$gen_seq, 1, 20))
+}
 ```
 
 The sequence logo of the first 20 amino acids of the generated protein sequences with the label "L" is shown below.
 
 ```{r, eval=TRUE}
-gen_prot_VAE <- gen_VAE(VAE_result, label = rep("L", 100), num_seq = 100)
-ggseqlogo::ggseqlogo(substr(gen_prot_VAE$gen_seq, 1, 20))
+if (keras::is_keras_available() & reticulate::py_available()) {
+    gen_prot_VAE <- gen_VAE(VAE_result, label = rep("L", 100), num_seq = 100)
+    ggseqlogo::ggseqlogo(substr(gen_prot_VAE$gen_seq, 1, 20))
+}
 ```
 
 The sequence logo of the first 20 amino acids of the real protein sequences is shown below.
 
 ```{r, eval=TRUE}
-ggseqlogo::ggseqlogo(substr(example_luxA, 1, 20))
+if (keras::is_keras_available() & reticulate::py_available()) {
+    ggseqlogo::ggseqlogo(substr(example_luxA, 1, 20))
+}
 ```
 
 
@@ -185,72 +205,80 @@ ggseqlogo::ggseqlogo(substr(example_luxA, 1, 20))
 The SARS coronavirus 3C-like Protease is used to train the autoregressive language model with the Transformer. The same dataset is used for training and validation.
 
 ```{r, eval=TRUE}
-library(GenProSeq)
-prot_seq <- DeepPINCS::SARS_CoV2_3CL_Protease
-
-# model parameters
-length_seq <- 10
-embedding_dim <- 16
-num_heads <- 2
-ff_dim <- 16
-num_transformer_blocks <- 2
-batch_size <- 32
-epochs <- 100
-
-# ART
-ART_result <- fit_ART(prot_seq = prot_seq,
-                    length_seq = length_seq,
-                    embedding_dim = embedding_dim,
-                    num_heads = num_heads,
-                    ff_dim = ff_dim,
-                    num_transformer_blocks = num_transformer_blocks,
-                    layers = list(layer_dropout(rate = 0.1),
-                                layer_dense(units = 32, activation = "relu"),
-                                layer_dropout(rate = 0.1)),
-                    prot_seq_val = prot_seq,
-                    epochs = epochs,
-                    batch_size = batch_size,
-                    use_generator = FALSE,
-                    callbacks = callback_early_stopping(
-                        monitor = "val_loss",
-                        patience = 50,
-                        restore_best_weights = TRUE))
+if (keras::is_keras_available() & reticulate::py_available()) {
+    library(GenProSeq)
+    prot_seq <- DeepPINCS::SARS_CoV2_3CL_Protease
+    
+    # model parameters
+    length_seq <- 10
+    embedding_dim <- 16
+    num_heads <- 2
+    ff_dim <- 16
+    num_transformer_blocks <- 2
+    batch_size <- 32
+    epochs <- 100
+    
+    # ART
+    ART_result <- fit_ART(prot_seq = prot_seq,
+                        length_seq = length_seq,
+                        embedding_dim = embedding_dim,
+                        num_heads = num_heads,
+                        ff_dim = ff_dim,
+                        num_transformer_blocks = num_transformer_blocks,
+                        layers = list(layer_dropout(rate = 0.1),
+                                    layer_dense(units = 32, activation = "relu"),
+                                    layer_dropout(rate = 0.1)),
+                        prot_seq_val = prot_seq,
+                        epochs = epochs,
+                        batch_size = batch_size,
+                        use_generator = FALSE,
+                        callbacks = callback_early_stopping(
+                            monitor = "val_loss",
+                            patience = 50,
+                            restore_best_weights = TRUE))
+}
 ```
 
 The model architecture is shown below.
 
 ```{r, eval=TRUE}
-ttgsea::plot_model(ART_result$model)
+if (keras::is_keras_available() & reticulate::py_available()) {
+    ttgsea::plot_model(ART_result$model)
+}
 ```
 
 The learned autoregressive model generates new sequences of proteins. After the language model generates a conditional probability distribution over vocabulary for the given input sequence, we need to decide how to choose the next word or token from the distribution. The greedy search simply selects the token with the highest probability value as its next token. Rather than just considering the highest probable word, the top b words is taken as the next word in the beam search. Here b is also called the beam size which is itself a parameter. Now to compute the second word each of these b first words is fed and top b words are obtained again. The process continues till the end. In temperature sampling, we sample the token from the modified conditional probability distribution over the vocabulary for the given temperature value. In the top-k sampling, the k most likely next tokens are filtered and their probabilities are adjusted among only those k tokens. In a similar manner, the top-p sampling is another way to exclude very low probability tokens and it finds the smallest set of tokens that have summed probability at least p.
 
 ```{r, eval=TRUE}
-set.seed(1)
-seed_prot <- "SGFRKMAFPS"
-gen_ART(ART_result, seed_prot, length_AA = 20, method = "greedy")
-substr(prot_seq, 1, 30)
-gen_ART(ART_result, seed_prot, length_AA = 20, method = "beam", b = 5)
-substr(prot_seq, 1, 30)
-gen_ART(ART_result, seed_prot, length_AA = 20, method = "temperature", t = 0.1)
-substr(prot_seq, 1, 30)
-gen_ART(ART_result, seed_prot, length_AA = 20, method = "top_k", k = 3)
-substr(prot_seq, 1, 30)
-gen_ART(ART_result, seed_prot, length_AA = 20, method = "top_p", p = 0.75)
-substr(prot_seq, 1, 30)
+if (keras::is_keras_available() & reticulate::py_available()) {
+    set.seed(1)
+    seed_prot <- "SGFRKMAFPS"
+    gen_ART(ART_result, seed_prot, length_AA = 20, method = "greedy")
+    substr(prot_seq, 1, 30)
+    gen_ART(ART_result, seed_prot, length_AA = 20, method = "beam", b = 5)
+    substr(prot_seq, 1, 30)
+    gen_ART(ART_result, seed_prot, length_AA = 20, method = "temperature", t = 0.1)
+    substr(prot_seq, 1, 30)
+    gen_ART(ART_result, seed_prot, length_AA = 20, method = "top_k", k = 3)
+    substr(prot_seq, 1, 30)
+    gen_ART(ART_result, seed_prot, length_AA = 20, method = "top_p", p = 0.75)
+    substr(prot_seq, 1, 30)
+}
 ```
 
 We can compute pairwise similarities between the real and generated protein sequences. The function "stringsim" vary between 0 for strings that are not similar at all, to 1 for strings that are identical. One advantage of the string similarity over the string distance function is that similarities are easier to interpret because they are normalized.
 
 ```{r, eval=TRUE}
-stringdist::stringsim(gen_ART(ART_result, seed_prot, length_AA = 20, method = "greedy"),
-                    substr(prot_seq, 1, 30))
-stringdist::stringsim(gen_ART(ART_result, seed_prot, length_AA = 30, method = "greedy"),
-                    substr(prot_seq, 1, 40))
-stringdist::stringsim(gen_ART(ART_result, seed_prot, length_AA = 40, method = "greedy"),
-                    substr(prot_seq, 1, 50))
-stringdist::stringsim(gen_ART(ART_result, seed_prot, length_AA = 50, method = "greedy"),
-                    substr(prot_seq, 1, 60))
+if (keras::is_keras_available() & reticulate::py_available()) {
+    stringdist::stringsim(gen_ART(ART_result, seed_prot, length_AA = 20, method = "greedy"),
+                        substr(prot_seq, 1, 30))
+    stringdist::stringsim(gen_ART(ART_result, seed_prot, length_AA = 30, method = "greedy"),
+                        substr(prot_seq, 1, 40))
+    stringdist::stringsim(gen_ART(ART_result, seed_prot, length_AA = 40, method = "greedy"),
+                        substr(prot_seq, 1, 50))
+    stringdist::stringsim(gen_ART(ART_result, seed_prot, length_AA = 50, method = "greedy"),
+                        substr(prot_seq, 1, 60))
+}
 ```
 
 
