@@ -1,5 +1,5 @@
 ---
-title: "Genearting Protein Sequences with Deep Generative Models"
+title: "Generating Protein Sequences with Deep Generative Models"
 author: "Dongmin Jung"
 date: September 20, 2021
 output:
